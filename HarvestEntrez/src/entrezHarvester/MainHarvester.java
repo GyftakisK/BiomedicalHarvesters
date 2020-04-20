@@ -114,11 +114,20 @@ public class MainHarvester {
      *      args[0]     DataSetId (e.g. DMD)
      *      args[1]     Mesh heading of the disease (e.g. "Muscular Dystrophy, Duchenne")
      *      args[2]     Date of last update in yyyy/MM/dd format (e.g. "2017/05/01")
+     *      args[3]     settings.yaml
      */
     public static void main(String[] args) {
-               
+
         //Load settings from file
-        s = new Settings("." + pathDelimiter + "settings.yaml");
+        String settingsFile;
+        if(args.length == 4){ // command line call
+            // TO DO add checks for these values
+            System.err.println(" " + new Date().toString() + " \t Creating data-set using settings file : " + args[3]);
+            settingsFile = args[3];
+        } else { // hardcoded call with default settings file named settings.yaml available in the project main folder
+            settingsFile = "." + pathDelimiter + "settings.yaml";
+        }
+        s = new Settings(settingsFile);
 //        System.out.println(s.getProperty("baseFolder"));
         // get the last update setting
         String lastUpdateDate = s.getProperty("lastUpdate").toString(); // The date of the lust run of the system e.g. 2018/02/01 to be used to retrieve only newer articles
@@ -134,7 +143,7 @@ public class MainHarvester {
         // dataSetId -> date of last update (yyyy/MM/dd)
         HashMap <String,String> dataSetDateUp = new HashMap <> ();
 
-        if(args.length == 3){ // command line call
+        if(args.length >= 3){ // command line call
             // TO DO add checks for these values
             System.err.println(" " + new Date().toString() + " \t Creating data-set " + args[0] + ",  MeSH : " + args[1] + " and last update date :" + args[2]);
             dataSetMeSHTerms.put(args[0], args[1]);
