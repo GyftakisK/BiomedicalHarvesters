@@ -550,7 +550,7 @@ public class Helper {
     public static void copyFileToFolder(String sourceFile, String targetFolder){
         try { 
                 File source = new File(sourceFile);
-                copyFile(source, new File(targetFolder + "\\" + source.getName()));
+                copyFile(source, new File(targetFolder + File.separator + source.getName()));
             } catch (IOException ex) {
                 System.out.println(" " + new Date().toString() + " Exception copying " + sourceFile + " to folder " + targetFolder );
                 System.out.println(ex.getMessage() );

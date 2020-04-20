@@ -11,6 +11,7 @@ package entrezSearcher;
 // add commons-logging-1.2.jar
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -210,7 +211,7 @@ public class EntrezSearcher {
      */
     private void fetchPart(int i,int start, int step){
     //Commented for Server compile 
-       String currentFile = this.XmlFolderPath + "\\" + db + (fileCount++) + "." + this.retFormat;
+       String currentFile = this.XmlFolderPath + File.separator + db + (fileCount++) + "." + this.retFormat;
     //Uncommented for Server compile 
     //       String currentFile = this.XmlFolderPath + "/" + db + (fileCount++) + ".xml";
 

@@ -32,7 +32,7 @@ import yamlSettings.Settings;
  * @author tasosnent
  */
 public class DrugbankHarvester {
-    private static String pathDelimiter = "\\";    // The delimiter in this system (i.e. "\\" for Windows, "/" for Unix)
+    private static String pathDelimiter = File.separator;    // The delimiter in this system (i.e. "\\" for Windows, "/" for Unix)
     private static Settings s; // The settings for the module
     
     /**

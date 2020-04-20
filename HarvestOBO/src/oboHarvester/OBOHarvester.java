@@ -11,6 +11,7 @@ import help.Helper;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,7 +42,7 @@ import yamlSettings.Settings;
  * @author tasosnent
  */
 public class OBOHarvester {
-    private static String pathDelimiter = "\\";    // The delimiter in this system (i.e. "\\" for Windows, "/" for Unix)
+    private static String pathDelimiter = File.separator;    // The delimiter in this system (i.e. "\\" for Windows, "/" for Unix)
 //  A list of all objects (concepts) read frm the OBO file
     private static JSONArray termList = new JSONArray();
     private static Settings s; // The settings for the module

@@ -9,7 +9,7 @@ package entrezHarvester;
 import pubmedIndexing.PubmedArticlesIndexer;
 import entrezSearcher.EntrezSearcher;
 import help.Helper;
-
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class MainHarvester {
 
     //Hardecoded values
     private final static boolean debugMode = true; //Enables printing of messages for normal functions
-    private static String pathDelimiter = "\\";    // The delimiter in this system (i.e. "\\" for Windows, "/" for Unix)
+    private static String pathDelimiter = File.separator;    // The delimiter in this system (i.e. "\\" for Windows, "/" for Unix)
     
     private static Settings s; // The settings for the module
     

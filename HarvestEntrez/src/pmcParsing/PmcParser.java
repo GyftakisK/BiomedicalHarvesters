@@ -162,7 +162,7 @@ public class PmcParser {
                         //Parse XML file
                         JSONObject result = readPMCXML(file.toString());
                         //Write JSON file
-                        Helper.writeJsonFile(targetPath + "\\" + file.getFileName().toString().replace(".xml", ".json"),result );
+                        Helper.writeJsonFile(targetPath + File.separator + file.getFileName().toString().replace(".xml", ".json"),result );
                         return FileVisitResult.CONTINUE;
                     }
                 });
