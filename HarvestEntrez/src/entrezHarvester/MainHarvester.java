@@ -107,98 +107,57 @@ public class MainHarvester {
      *          This program adds (again*) "has abstract" restriction to the data (other restrictions may be added too)
      *          The input-index should also contain those restrictions, as the XML file should be the result of the appropriate pubmedQuery. 
      *          
-     *  e.g. "DMD" "Muscular Dystrophy, Duchenne" "2017/05/01"
-     *          >   java -jar entrezHarvester.jar "DMD" "Muscular Dystrophy, Duchenne" "2017/05/01"
+     *  e.g. settings.yaml
+     *          >   java -jar entrezHarvester.jar settings.yaml
      * 
-     * @param args 
-     *      args[0]     DataSetId (e.g. DMD)
-     *      args[1]     Mesh heading of the disease (e.g. "Muscular Dystrophy, Duchenne")
-     *      args[2]     Date of last update in yyyy/MM/dd format (e.g. "2017/05/01")
-     *      args[3]     settings.yaml
+     * @param args
+     *      args[0]     settings.yaml
      */
     public static void main(String[] args) {
 
         //Load settings from file
         String settingsFile;
-        if(args.length == 4){ // command line call
+        if(args.length == 1){ // command line call
             // TO DO add checks for these values
-            System.err.println(" " + new Date().toString() + " \t Creating data-set using settings file : " + args[3]);
-            settingsFile = args[3];
+            settingsFile = args[0];
         } else { // hardcoded call with default settings file named settings.yaml available in the project main folder
             settingsFile = "." + pathDelimiter + "settings.yaml";
         }
+        System.out.println(" " + new Date().toString() + " \t Creating data-set using settings file : " + args[0]);
+
         s = new Settings(settingsFile);
 //        System.out.println(s.getProperty("baseFolder"));
         // get the last update setting
-        String lastUpdateDate = s.getProperty("lastUpdate").toString(); // The date of the lust run of the system e.g. 2018/02/01 to be used to retrieve only newer articles
-        String dateSuffix = Helper.dateNow().replace("/", ""); // A suffix based on the current date to be used in dataset id creation
-        // Update the last update setting for the next use
-        s.setProperty("lastUpdate", Helper.dateNow());
+        String startDate = s.getProperty("date/from").toString();
+        String endDate = s.getProperty("date/to").toString();
+        String datasetId = s.getProperty("datasetId")
+                + "_" + endDate.replaceAll("/", "_")
+                + "_" + startDate.replaceAll("/", "_");
+
+        ArrayList<String> meshTerms = (ArrayList<String>) s.getProperty("meshTerms");
 
 
-        String datasetID ="";       //ID of the current testSet, this should be the id used by Participants Area Platform database
-        String meshTerm = "";       //Weekly list
-        // dataSetId -> Mesh term (label)
-        HashMap <String,String> dataSetMeSHTerms = new HashMap <> ();
-        // dataSetId -> date of last update (yyyy/MM/dd)
-        HashMap <String,String> dataSetDateUp = new HashMap <> ();
+        String meshTerm = String.join(" [MeSH Terms] OR ", meshTerms)
+                + " [MeSH Terms]";
 
-        if(args.length >= 3){ // command line call
-            // TO DO add checks for these values
-            System.err.println(" " + new Date().toString() + " \t Creating data-set " + args[0] + ",  MeSH : " + args[1] + " and last update date :" + args[2]);
-            dataSetMeSHTerms.put(args[0], args[1]);
-            dataSetDateUp.put(args[0], args[2]);
-        } else { // hardcoded call for three case study diseases
-            dataSetMeSHTerms.put("DMD_"+dateSuffix, "Muscular Dystrophy, Duchenne");
-            dataSetDateUp.put("DMD_"+dateSuffix, lastUpdateDate);            
-            dataSetMeSHTerms.put("LC_"+dateSuffix, "Lung Neoplasms");
-            dataSetDateUp.put("LC_"+dateSuffix, lastUpdateDate);
-            dataSetMeSHTerms.put("AD_"+dateSuffix, "Alzheimer Disease");
-            dataSetDateUp.put("AD_"+dateSuffix, lastUpdateDate);
-
-        }
         // create query based on a MeSH term
-            // This is a map so that it can be extensible : 
+            // This is a map so that it can be extensible :
             // If we want to test multiple queries, just put more elements in queries HahMap
         HashMap <String,String> queries = new HashMap <> ();
-        
-        //For each test id
-        ArrayList<String> dataSetIds = new ArrayList<>();
-        dataSetIds.addAll(dataSetMeSHTerms.keySet());
-        Collections.sort(dataSetIds);
-        String lastUpdate = "";
-        for(String dataSetId : dataSetIds){
-            datasetID = dataSetId;
-            meshTerm = dataSetMeSHTerms.get(dataSetId);
-            // If a date of "last update" is provided, narrow the searchNwrite after that date, 
-            if(dataSetDateUp.get(dataSetId) != null){
-                lastUpdate = dataSetDateUp.get(dataSetId);
-            } else{// Else, use a default minimum value
-                lastUpdate = "1900/01/01";
-            }
-                
-            // Query for the data set differentiation of functionality based on suffixes
-                // source (pubmed or pmc) -> query
-            queries.put("pubmed"," " + meshTerm + " [MeSH Terms] "
-                + " AND ( hasabstract not hasretractionof not haserratumfor not haspartialretractionof )"
-                + " AND ( " + lastUpdate + "[Date - Completion] :" + Helper.dateNow() + "[Date - Completion]) " );  
-            queries.put("pmc"," " + meshTerm + " [MeSH Terms] "
+
+        queries.put("pubmed"," " + meshTerm
+            + " AND ( hasabstract not hasretractionof not haserratumfor not haspartialretractionof )"
+            + " AND ( " + startDate + "[Date - Completion] :" + endDate + "[Date - Completion]) " );
+        queries.put("pmc"," " + meshTerm + " [MeSH Terms] "
 //                + " AND ( hasabstract not hasretractionof not haserratumfor not haspartialretractionof )"
-                    + "AND (" + lastUpdate + ":" + Helper.dateNow() + "[pmclivedate]) "
-                    + "AND open access[filter] AND cc license[filter]" );  
-            // Suffix denotes what source is targeted by the query
-            
-            // Example query : "Dementia" [MeSH Terms] AND ( hasabstract not hasretractionof not haserratumfor not haspartialretractionof )  AND ( 1900/01/01[Date - Completion] :2017/10/11[Date - Completion])
-            
-            for(String source : queries.keySet()){
-//                System.err.println(" - ");
-//                System.err.println(" " + new Date().toString() + " \t Prepare " + datasetID + " data set : " );
-                // When testing multiple queries, add queryID in datasetID so that different folders will be created
-                MainHarvester tsm = new MainHarvester(datasetID, queries.get(source),source);
-                // Do steps to create dataSet(s)("Do not stop and wait before indexing", "Do not add extra fields that the official ones")                    
-                tsm.doSteps(true);     
-//                System.err.println(" - ");
-            }      
+                + "AND (" + startDate + ":" + endDate + "[pmclivedate]) "
+                + "AND open access[filter] AND cc license[filter]" );
+
+        for(String source : queries.keySet()){
+            // When testing multiple queries, add queryID in datasetID so that different folders will be created
+            MainHarvester tsm = new MainHarvester(datasetId, queries.get(source),source);
+            // Do steps to create dataSet(s)("Do not stop and wait before indexing", "Do not add extra fields that the official ones")
+            tsm.doSteps(true);
         }
     }
     

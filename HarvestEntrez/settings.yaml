@@ -1,3 +1,5 @@
-baseFolder: D:\tmp files
-lastUpdate: 2018/03/25
-mongodb: {host: 127.0.0.1, port: 27017, dbname: harvseting}
+baseFolder: "path/to/save/temp/files"
+date: {from: 2020/04/01, to: 2020/05/01}
+meshTerms: ["MeSH term 1", "MeSH, term 2"]
+datasetId: "DatasetId" 
+mongodb: {host: 127.0.0.1, port: 27017, dbname: harvestingDb}
