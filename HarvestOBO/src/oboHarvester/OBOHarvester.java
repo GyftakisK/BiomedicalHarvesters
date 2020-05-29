@@ -305,7 +305,7 @@ public class OBOHarvester {
                     tmpRelation = new JSONObject();
                     tmpRelation.put("s", cuis.get(doid));
                     tmpRelation.put("o", cuis.get(parent));
-                    tmpRelation.put("p", "IS_A");
+                    tmpRelation.put("p", "ISA");
                     relations.add(tmpRelation);
                 }
             }
@@ -329,7 +329,7 @@ public class OBOHarvester {
                 tmpRelation = new JSONObject();
                 tmpRelation.put("s", child);
                 tmpRelation.put("o", parent);
-                tmpRelation.put("p", "IS_A");
+                tmpRelation.put("p", "ISA");
                 relations.add(tmpRelation);
             }
         }
